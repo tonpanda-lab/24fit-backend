@@ -23,6 +23,33 @@ app.use(express.json());
 app.use('/v1/auth', authRoutes);
 app.use('/v1/sync', syncRoutes);
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+  const httpStatus = dbState === 1 ? 200 : 503;
+
+  res.status(httpStatus).json({
+    status: dbState === 1 ? 'healthy' : 'unhealthy',
+    timestamp: new Date().toISOString(),
+    database: dbStatus,
+    uptime: process.uptime(),
+  });
+});
+
+app.get('/v1/health', (req, res) => {
+  const dbState = mongoose.connection.readyState;
+  const dbStatus = dbState === 1 ? 'connected' : 'disconnected';
+  const httpStatus = dbState === 1 ? 200 : 503;
+
+  res.status(httpStatus).json({
+    status: dbState === 1 ? 'healthy' : 'unhealthy',
+    timestamp: new Date().toISOString(),
+    database: dbStatus,
+    uptime: process.uptime(),
+  });
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
