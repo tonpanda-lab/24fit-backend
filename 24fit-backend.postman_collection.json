@@ -2,10 +2,43 @@
   "info": {
     "_postman_id": "24fit-backend-api-v1",
     "name": "24Fit Backend API",
-    "description": "Postman collection for testing the NutriSimple backend auth API. Base URL: http://152.42.206.217:3000",
+    "description": "Postman collection for testing the NutriSimple backend auth API. Base URL: https://api.nutrisimple.site",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
+    {
+      "name": "🏥 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Returns app health status, database connectivity, and uptime."
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check (v1)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "health"]
+            },
+            "description": "Nginx-proxied health check endpoint."
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "🔐 Auth",
       "item": [
@@ -408,7 +441,7 @@
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://152.42.206.217:3000",
+      "value": "https://api.nutrisimple.site",
       "type": "string"
     },
     {
