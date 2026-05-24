@@ -195,6 +195,18 @@ router.post('/google', async (req, res) => {
       return res.status(401).json({ error: 'Invalid Google ID token' });
     }
 
+    // Verify token audience (prevent replay attacks from other apps)
+    const allowedAudiences = [
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_ANDROID_CLIENT_ID,
+      process.env.GOOGLE_IOS_CLIENT_ID,
+    ].filter(Boolean);
+
+    if (allowedAudiences.length > 0 && !allowedAudiences.includes(payload.aud)) {
+      console.error('Google token aud mismatch:', payload.aud);
+      return res.status(401).json({ error: 'Invalid token audience' });
+    }
+
     const googleUserId = payload.sub;
     const email = payload.email;
     const name = payload.name || null;
