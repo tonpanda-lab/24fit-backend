@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const syncRoutes = require('./routes/sync');
 const profileRoutes = require('./routes/profile');
 const historyRoutes = require('./routes/history');
+const mealsRoutes = require('./routes/meals');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use('/v1/auth', authRoutes);
 app.use('/v1/sync', syncRoutes);
 app.use('/v1/profile', profileRoutes);
 app.use('/v1/history', historyRoutes);
+app.use('/v1/meals', mealsRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

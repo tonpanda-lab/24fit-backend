@@ -358,6 +358,7 @@ Content-Type: application/json
 {
   "server_user_id": "507f1f77bcf86cd799439011",
   "date": "2024-01-15",
+  "timestamp": 1705312800000,
   "item": "Oatmeal",
   "total_calories": 300
 }
@@ -366,15 +367,16 @@ Content-Type: application/json
 **Success 200:**
 
 ```json
-{ "server_meal_id": "2024-01-15-oatmeal" }
+{ "server_meal_id": "2024-01-15-1705312800000-oatmeal" }
 ```
 
-The backend matches meals by `date` + `item`. If the same item is logged on the same date, the calories are updated.
+The backend matches meals by `server_meal_id`, which is generated from `date` + `timestamp` + `item`. This allows logging the same item multiple times on the same day as long as the timestamp differs. If `timestamp` is omitted, the current time is used.
 
 **Validation errors:**
 - `400` — missing/invalid `date` (must be `YYYY-MM-DD`)
 - `400` — missing/empty `item`
 - `400` — invalid `total_calories` (must be a non-negative number)
+- `400` — invalid `timestamp`
 
 ### 7.3 Fetch all user data
 
@@ -390,8 +392,9 @@ Authorization: Bearer <access_token>
   "profile": { /* profile object */ },
   "meals": [
     {
-      "server_meal_id": "2024-01-15-oatmeal",
+      "server_meal_id": "2024-01-15-1705312800000-oatmeal",
       "date": "2024-01-15",
+      "timestamp": 1705312800000,
       "item": "Oatmeal",
       "total_calories": 300,
       "updated_at": "2024-01-15T10:30:00.000Z"
@@ -455,8 +458,9 @@ Authorization: Bearer <access_token>
 {
   "meals": [
     {
-      "server_meal_id": "2024-01-15-oatmeal",
+      "server_meal_id": "2024-01-15-1705312800000-oatmeal",
       "date": "2024-01-15",
+      "timestamp": 1705312800000,
       "item": "Oatmeal",
       "total_calories": 300,
       "updated_at": "2024-01-15T12:00:00.000Z"
@@ -472,6 +476,67 @@ Authorization: Bearer <access_token>
 ```
 
 **Error 400:** invalid `page` or `limit` values.
+### 8.3 Update Meal
+
+```http
+PUT /v1/meals/<server_meal_id>
+Authorization: Bearer <access_token>
+Content-Type: application/json
+
+{
+  "date": "2024-01-15",
+  "timestamp": 1705312800000,
+  "item": "Oatmeal",
+  "total_calories": 350
+}
+```
+
+**Success 200:**
+
+```json
+{ "server_meal_id": "2024-01-15-1705312800000-oatmeal" }
+```
+
+The `server_meal_id` is regenerated if `date`, `timestamp`, or `item` changes.
+
+### 8.4 Delete Meal
+
+```http
+DELETE /v1/meals/<server_meal_id>
+Authorization: Bearer <access_token>
+```
+
+**Success 204:** empty body.
+
+### 8.5 Get Daily Calorie Summary
+
+```http
+GET /v1/history/calories?start_date=2024-01-01&end_date=2024-01-31
+Authorization: Bearer <access_token>
+```
+
+**Query parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `start_date` | string (YYYY-MM-DD) | yes | Start of date range |
+| `end_date` | string (YYYY-MM-DD) | no | End of date range (defaults to today) |
+
+**Success 200:**
+
+```json
+{
+  "data": [
+    { "date": "2024-01-14", "total_calories": 1200 },
+    { "date": "2024-01-15", "total_calories": 1850 },
+    { "date": "2024-01-16", "total_calories": 0 }
+  ],
+  "start_date": "2024-01-14",
+  "end_date": "2024-01-16"
+}
+```
+
+**Error 400:** invalid/missing `start_date`, invalid `end_date`, `end_date` before `start_date`, or range exceeds 365 days.
 
 ---
 
@@ -520,6 +585,9 @@ GET /health
 - [ ] Send `server_user_id` in sync body/query matching the JWT `sub` claim
 - [ ] Use `GET /v1/profile` to fetch the current user profile
 - [ ] Use `GET /v1/history` to fetch paginated meal history
+- [ ] Use `PUT /v1/meals/<id>` to update a meal record
+- [ ] Use `DELETE /v1/meals/<id>` to delete a meal record
+- [ ] Use `GET /v1/history/calories` for daily calorie totals
 - [ ] Call `/v1/auth/logout` on sign-out and delete stored tokens
 - [ ] Replace OAuth placeholders in backend `.env` before using Apple/Google Sign-In
 

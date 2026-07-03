@@ -12,13 +12,55 @@ function isValidDateString(dateStr) {
   return !Number.isNaN(date.getTime());
 }
 
-function generateMealId(date, item) {
+function parseTimestamp(timestampValue) {
+  if (timestampValue === undefined || timestampValue === null) {
+    return Date.now();
+  }
+
+  if (typeof timestampValue === 'number' && Number.isFinite(timestampValue)) {
+    return timestampValue;
+  }
+
+  if (typeof timestampValue === 'string') {
+    // Try parsing as number first (Unix seconds or milliseconds)
+    const numeric = Number(timestampValue);
+    if (Number.isFinite(numeric)) {
+      return numeric;
+    }
+
+    // Try parsing as ISO date string
+    const parsed = new Date(timestampValue).getTime();
+    if (!Number.isNaN(parsed)) {
+      return parsed;
+    }
+  }
+
+  return null;
+}
+
+function generateMealId(date, timestamp, item) {
   const safeItem = String(item)
     .toLowerCase()
     .trim()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
-  return `${date}-${safeItem}`;
+  return `${date}-${timestamp}-${safeItem}`;
+}
+
+function validateMealInput(date, item, totalCalories) {
+  if (!date || !isValidDateString(date)) {
+    return { valid: false, error: 'Invalid or missing date. Expected YYYY-MM-DD.' };
+  }
+
+  if (!item || typeof item !== 'string' || item.trim().length === 0) {
+    return { valid: false, error: 'Invalid or missing item. Expected non-empty string.' };
+  }
+
+  if (typeof totalCalories !== 'number' || Number.isNaN(totalCalories) || totalCalories < 0) {
+    return { valid: false, error: 'Invalid or missing total_calories. Expected non-negative number.' };
+  }
+
+  return { valid: true };
 }
 
 // POST /v1/sync/profile
@@ -45,22 +87,20 @@ router.post('/profile', authenticateToken, async (req, res) => {
 // POST /v1/sync/meals
 router.post('/meals', authenticateToken, async (req, res) => {
   try {
-    const { server_user_id, date, item, total_calories } = req.body;
+    const { server_user_id, date, timestamp, item, total_calories } = req.body;
 
     if (!server_user_id || server_user_id !== req.userId) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    if (!date || !isValidDateString(date)) {
-      return res.status(400).json({ error: 'Invalid or missing date. Expected YYYY-MM-DD.' });
+    const validation = validateMealInput(date, item, total_calories);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
     }
 
-    if (!item || typeof item !== 'string' || item.trim().length === 0) {
-      return res.status(400).json({ error: 'Invalid or missing item. Expected non-empty string.' });
-    }
-
-    if (typeof total_calories !== 'number' || Number.isNaN(total_calories) || total_calories < 0) {
-      return res.status(400).json({ error: 'Invalid or missing total_calories. Expected non-negative number.' });
+    const parsedTimestamp = parseTimestamp(timestamp);
+    if (parsedTimestamp === null) {
+      return res.status(400).json({ error: 'Invalid timestamp.' });
     }
 
     let userData = await UserData.findOne({ userId: req.userId });
@@ -69,7 +109,7 @@ router.post('/meals', authenticateToken, async (req, res) => {
     }
 
     const trimmedItem = item.trim();
-    const serverMealId = generateMealId(date, trimmedItem);
+    const serverMealId = generateMealId(date, parsedTimestamp, trimmedItem);
     const existingIndex = userData.meals.findIndex(
       (m) => m.server_meal_id === serverMealId
     );
@@ -77,6 +117,7 @@ router.post('/meals', authenticateToken, async (req, res) => {
     const mealRecord = {
       server_meal_id: serverMealId,
       date,
+      timestamp: parsedTimestamp,
       item: trimmedItem,
       total_calories: total_calories,
       updated_at: new Date().toISOString(),
@@ -122,3 +163,6 @@ router.get('/data', authenticateToken, async (req, res) => {
 });
 
 module.exports = router;
+module.exports.generateMealId = generateMealId;
+module.exports.validateMealInput = validateMealInput;
+module.exports.parseTimestamp = parseTimestamp;

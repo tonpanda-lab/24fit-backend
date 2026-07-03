@@ -359,7 +359,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"date\": \"2024-01-15\",\n  \"item\": \"Oatmeal\",\n  \"total_calories\": 300\n}"
+              "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"date\": \"2024-01-15\",\n  \"timestamp\": 1705312800000,\n  \"item\": \"Oatmeal\",\n  \"total_calories\": 300\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/sync/meals",
@@ -372,7 +372,7 @@
                 "meals"
               ]
             },
-            "description": "Push a simple meal log (date, item, total_calories). Requires Bearer token. Returns server_meal_id."
+            "description": "Push a meal log (date, timestamp, item, total_calories). Requires Bearer token. Returns server_meal_id."
           },
           "response": []
         },
@@ -500,6 +500,153 @@
                   "    pm.expect(json).to.have.property('pagination');",
                   "    pm.expect(json.pagination).to.have.property('page');",
                   "    pm.expect(json.pagination).to.have.property('total');",
+                  "});",
+                  "pm.test('Meals have timestamp', () => {",
+                  "    const json = pm.response.json();",
+                  "    if (json.meals.length > 0) {",
+                  "        pm.expect(json.meals[0]).to.have.property('timestamp');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Update Meal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2024-01-15\",\n  \"timestamp\": 1705312800000,\n  \"item\": \"Oatmeal\",\n  \"total_calories\": 350\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/meals/{{meal_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "meals",
+                "{{meal_id}}"
+              ]
+            },
+            "description": "Update an existing meal record. Set meal_id collection variable first."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has server_meal_id', () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('server_meal_id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Delete Meal",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/meals/{{meal_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "meals",
+                "{{meal_id}}"
+              ]
+            },
+            "description": "Delete an existing meal record. Set meal_id collection variable first."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 204', () => {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Daily Calories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/history/calories?start_date=2024-01-01&end_date=2024-01-31",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "history",
+                "calories"
+              ],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-01-01"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-01-31"
+                }
+              ]
+            },
+            "description": "Get daily calorie totals for a date range."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has data array', () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.be.an('array');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -604,7 +751,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"date\": \"2024-01-15\",\n  \"item\": \"Rice\",\n  \"total_calories\": 200\n}"
+                  "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"date\": \"2024-01-15\",\n  \"timestamp\": 1705312800000,\n  \"item\": \"Rice\",\n  \"total_calories\": 200\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/v1/sync/meals",
@@ -723,6 +870,11 @@
     },
     {
       "key": "user_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "meal_id",
       "value": "",
       "type": "string"
     }
