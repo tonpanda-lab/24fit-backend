@@ -18,8 +18,15 @@ router.get('/', authenticateToken, async (req, res, next) => {
     const userData = await UserData.findOne({ userId: req.userId }).lean();
     const meals = userData?.meals || [];
 
-    // Sort by updated_at descending, fallback to original array order
+    // Sort by date descending, then updated_at descending
     const sortedMeals = [...meals].sort((a, b) => {
+      const aDateStr = a.date;
+      const bDateStr = b.date;
+
+      if (aDateStr && bDateStr && aDateStr !== bDateStr) {
+        return bDateStr.localeCompare(aDateStr);
+      }
+
       const aUpdated = a.updated_at;
       const bUpdated = b.updated_at;
 
@@ -27,14 +34,14 @@ router.get('/', authenticateToken, async (req, res, next) => {
       if (!aUpdated) return 1;
       if (!bUpdated) return -1;
 
-      const aDate = new Date(aUpdated);
-      const bDate = new Date(bUpdated);
+      const aUpdatedDate = new Date(aUpdated);
+      const bUpdatedDate = new Date(bUpdated);
 
-      if (Number.isNaN(aDate.getTime()) || Number.isNaN(bDate.getTime())) {
+      if (Number.isNaN(aUpdatedDate.getTime()) || Number.isNaN(bUpdatedDate.getTime())) {
         return 0;
       }
 
-      return bDate - aDate;
+      return bUpdatedDate - aUpdatedDate;
     });
 
     const { items, pagination } = paginateArray(sortedMeals, page, limit);

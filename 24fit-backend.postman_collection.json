@@ -359,7 +359,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"meal\": {\n    \"timestamp\": \"2024-01-15T08:00:00Z\",\n    \"type\": \"breakfast\",\n    \"total_calories\": 450\n  },\n  \"items\": [\n    {\n      \"name\": \"Oatmeal\",\n      \"quantity\": 1,\n      \"unit\": \"bowl\",\n      \"calories\": 300\n    },\n    {\n      \"name\": \"Banana\",\n      \"quantity\": 1,\n      \"unit\": \"piece\",\n      \"calories\": 150\n    }\n  ]\n}"
+              "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"date\": \"2024-01-15\",\n  \"item\": \"Oatmeal\",\n  \"total_calories\": 300\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/v1/sync/meals",
@@ -372,7 +372,7 @@
                 "meals"
               ]
             },
-            "description": "Push a meal entry. Requires Bearer token. Returns server_meal_id."
+            "description": "Push a simple meal log (date, item, total_calories). Requires Bearer token. Returns server_meal_id."
           },
           "response": []
         },
@@ -604,7 +604,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"meal\": {\n    \"timestamp\": \"2024-01-15T12:00:00Z\",\n    \"type\": \"lunch\"\n  },\n  \"items\": [\n    {\"name\": \"Rice\", \"quantity\": 1, \"unit\": \"bowl\", \"calories\": 200}\n  ]\n}"
+                  "raw": "{\n  \"server_user_id\": \"{{user_id}}\",\n  \"date\": \"2024-01-15\",\n  \"item\": \"Rice\",\n  \"total_calories\": 200\n}"
                 },
                 "url": {
                   "raw": "{{baseUrl}}/v1/sync/meals",

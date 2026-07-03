@@ -357,25 +357,24 @@ Content-Type: application/json
 
 {
   "server_user_id": "507f1f77bcf86cd799439011",
-  "meal": {
-    "timestamp": 1705312800,
-    "name": "Breakfast",
-    "total_calories": 450
-  },
-  "items": [
-    { "name": "Eggs", "calories": 140 },
-    { "name": "Toast", "calories": 120 }
-  ]
+  "date": "2024-01-15",
+  "item": "Oatmeal",
+  "total_calories": 300
 }
 ```
 
 **Success 200:**
 
 ```json
-{ "server_meal_id": "abc123-..." }
+{ "server_meal_id": "2024-01-15-oatmeal" }
 ```
 
-The backend matches meals by `timestamp`. If a meal with the same timestamp exists, it updates; otherwise it creates a new one.
+The backend matches meals by `date` + `item`. If the same item is logged on the same date, the calories are updated.
+
+**Validation errors:**
+- `400` — missing/invalid `date` (must be `YYYY-MM-DD`)
+- `400` — missing/empty `item`
+- `400` — invalid `total_calories` (must be a non-negative number)
 
 ### 7.3 Fetch all user data
 
@@ -391,11 +390,11 @@ Authorization: Bearer <access_token>
   "profile": { /* profile object */ },
   "meals": [
     {
-      "server_meal_id": "abc123-...",
-      "updated_at": "2024-01-15T10:30:00.000Z",
-      "timestamp": 1705312800,
-      "name": "Breakfast",
-      ...
+      "server_meal_id": "2024-01-15-oatmeal",
+      "date": "2024-01-15",
+      "item": "Oatmeal",
+      "total_calories": 300,
+      "updated_at": "2024-01-15T10:30:00.000Z"
     }
   ]
 }
@@ -456,11 +455,11 @@ Authorization: Bearer <access_token>
 {
   "meals": [
     {
-      "server_meal_id": "abc123-...",
-      "updated_at": "2024-01-15T12:00:00.000Z",
-      "timestamp": "2024-01-15T12:00:00Z",
-      "type": "lunch",
-      "total_calories": 450
+      "server_meal_id": "2024-01-15-oatmeal",
+      "date": "2024-01-15",
+      "item": "Oatmeal",
+      "total_calories": 300,
+      "updated_at": "2024-01-15T12:00:00.000Z"
     }
   ],
   "pagination": {
