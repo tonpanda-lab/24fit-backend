@@ -166,3 +166,4 @@ module.exports = router;
 module.exports.generateMealId = generateMealId;
 module.exports.validateMealInput = validateMealInput;
 module.exports.parseTimestamp = parseTimestamp;
+module.exports.isValidDateString = isValidDateString;
