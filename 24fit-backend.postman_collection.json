@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "24fit-backend-api-v1",
     "name": "24Fit Backend API",
-    "description": "Postman collection for testing the NutriSimple backend auth API. Base URL: https://api.nutrisimple.site",
+    "description": "Postman collection for testing the 24Fit / NutriSimple backend API. Base URL: https://api.nutrisimple.site",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -406,7 +406,12 @@
             "description": "Fetch all user data (profile + meals). Requires Bearer token."
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "\ud83d\udcd6 Read (Protected)",
+      "item": [
         {
           "name": "Get Profile",
           "request": {
@@ -429,7 +434,24 @@
             },
             "description": "Retrieve the authenticated user's stored profile."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has profile field', () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('profile');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
           "name": "Get History",
@@ -463,7 +485,27 @@
             },
             "description": "Retrieve paginated meal history for the authenticated user."
           },
-          "response": []
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Response has meals and pagination', () => {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('meals');",
+                  "    pm.expect(json).to.have.property('pagination');",
+                  "    pm.expect(json.pagination).to.have.property('page');",
+                  "    pm.expect(json.pagination).to.have.property('total');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         }
       ]
     },
