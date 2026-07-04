@@ -7,7 +7,7 @@ NutriSimple backend auth API built with Node.js, Express, and MongoDB.
 - **Runtime**: Node.js + Express
 - **Database**: MongoDB (Mongoose)
 - **Auth**: JWT (access + refresh tokens)
-- **OAuth**: Apple Sign-In & Google Sign-In
+- **OAuth**: Google Sign-In
 
 ## Getting Started
 
@@ -38,10 +38,6 @@ cp .env.example .env
 | `JWT_REFRESH_SECRET` | JWT refresh token secret (min 32 chars) |
 | `JWT_ACCESS_EXPIRY` | Access token expiry (default: 15m) |
 | `JWT_REFRESH_EXPIRY` | Refresh token expiry in days (default: 7) |
-| `APPLE_CLIENT_ID` | Apple bundle ID |
-| `APPLE_TEAM_ID` | Apple Team ID |
-| `APPLE_KEY_ID` | Apple Key ID |
-| `APPLE_PRIVATE_KEY` | Apple private key (PEM format) |
 | `GOOGLE_CLIENT_ID` | Google OAuth client ID |
 
 ### Running the Server
@@ -62,7 +58,6 @@ npm run dev
 |--------|----------|-------------|
 | POST | `/v1/auth/register` | Email/password registration |
 | POST | `/v1/auth/login` | Email/password login |
-| POST | `/v1/auth/apple` | Apple Sign-In |
 | POST | `/v1/auth/google` | Google Sign-In |
 | POST | `/v1/auth/refresh` | Refresh access token |
 | POST | `/v1/auth/logout` | Revoke refresh token |

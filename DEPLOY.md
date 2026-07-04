@@ -113,10 +113,6 @@ JWT_ACCESS_SECRET=change-me-to-64-random-chars-minimum!!!
 JWT_REFRESH_SECRET=change-me-to-64-random-chars-minimum!!!
 JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=7d
-APPLE_CLIENT_ID=your.apple.bundle.id
-APPLE_TEAM_ID=YOURTEAMID
-APPLE_KEY_ID=YOURKEYID
-APPLE_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\n...\n-----END EC PRIVATE KEY-----"
 GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 

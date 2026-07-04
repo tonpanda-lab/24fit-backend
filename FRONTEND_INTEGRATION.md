@@ -111,22 +111,7 @@ Content-Type: application/json
 **Errors:**
 - `401` — invalid credentials
 
-### 3.3 Apple Sign-In
-
-```http
-POST /v1/auth/apple
-Content-Type: application/json
-
-{
-  "identity_token": "<apple-jwt>",
-  "authorization_code": "<code>",
-  "user_identifier": "001234.abc123..."
-}
-```
-
-**Success 200:** same token/user shape as register.
-
-### 3.4 Google Sign-In
+### 3.3 Google Sign-In
 
 ```http
 POST /v1/auth/google
@@ -140,7 +125,7 @@ Content-Type: application/json
 
 **Success 200:** same token/user shape as register.
 
-### 3.5 Refresh Access Token
+### 3.4 Refresh Access Token
 
 ```http
 POST /v1/auth/refresh
@@ -165,7 +150,7 @@ Content-Type: application/json
 **Errors:**
 - `401` — invalid or expired refresh token
 
-### 3.6 Logout
+### 3.5 Logout
 
 ```http
 POST /v1/auth/logout
@@ -589,7 +574,7 @@ GET /health
 - [ ] Use `DELETE /v1/meals/<id>` to delete a meal record
 - [ ] Use `GET /v1/history/calories` for daily calorie totals
 - [ ] Call `/v1/auth/logout` on sign-out and delete stored tokens
-- [ ] Replace OAuth placeholders in backend `.env` before using Apple/Google Sign-In
+- [ ] Replace OAuth placeholders in backend `.env` before using Google Sign-In
 
 ---
 

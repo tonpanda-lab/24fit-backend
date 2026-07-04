@@ -144,51 +144,6 @@
           ]
         },
         {
-          "name": "Apple Sign-In",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"identity_token\": \"<apple-jwt>\",\n  \"authorization_code\": \"<code>\",\n  \"user_identifier\": \"001234.abc123...\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/v1/auth/apple",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "v1",
-                "auth",
-                "apple"
-              ]
-            },
-            "description": "Apple Sign-In. Replace identity_token with a real Apple JWT."
-          },
-          "response": [],
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "if (pm.response.code === 200) {",
-                  "    const json = pm.response.json();",
-                  "    pm.collectionVariables.set('access_token', json.tokens.access_token);",
-                  "    pm.collectionVariables.set('refresh_token', json.tokens.refresh_token);",
-                  "    pm.collectionVariables.set('user_id', json.user.id);",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ]
-        },
-        {
           "name": "Google Sign-In",
           "request": {
             "method": "POST",

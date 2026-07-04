@@ -4,7 +4,7 @@
 - **Runtime**: Node.js + Express
 - **Database**: MongoDB (Mongoose)
 - **Auth**: JWT (access + refresh tokens)
-- **OAuth**: Verify Apple identity tokens & Google ID tokens
+- **OAuth**: Verify Google ID tokens
 
 ---
 
@@ -15,8 +15,8 @@
 const userSchema = new mongoose.Schema({
   email:        { type: String, required: true, unique: true, lowercase: true },
   passwordHash: { type: String },           // null for OAuth users
-  authProvider: { type: String, enum: ['email', 'apple', 'google'], required: true },
-  providerId:   { type: String },           // Apple userIdentifier / Google sub
+  authProvider: { type: String, enum: ['email', 'google'], required: true },
+  providerId:   { type: String },           // Google sub
   displayName:  { type: String },
   photoUrl:     { type: String },
   createdAt:    { type: Date, default: Date.now },
@@ -55,10 +55,6 @@ JWT_ACCESS_SECRET=your-access-secret-min-32-chars
 JWT_REFRESH_SECRET=your-refresh-secret-min-32-chars
 JWT_ACCESS_EXPIRY=15m
 JWT_REFRESH_EXPIRY=7d
-APPLE_CLIENT_ID=your.apple.bundle.id
-APPLE_TEAM_ID=YOURTEAMID
-APPLE_KEY_ID=YOURKEYID
-APPLE_PRIVATE_KEY="-----BEGIN EC PRIVATE KEY-----\n...\n-----END EC PRIVATE KEY-----"
 GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
 ```
 
@@ -117,30 +113,7 @@ Email/password login.
 
 ---
 
-### 3.3 POST `/v1/auth/apple`
-Apple Sign-In.
-
-**Request:**
-```json
-{
-  "identity_token": "<apple-jwt>",
-  "authorization_code": "<code>",
-  "user_identifier": "001234.abc123..."
-}
-```
-
-**Flow:**
-1. Verify Apple identity token (JWT) using Apple's public keys from `https://appleid.apple.com/auth/keys`
-2. Extract `sub` (Apple user ID) and `email`
-3. If user exists by `providerId` → sign in
-4. If new → create user with `authProvider: 'apple'`
-5. Return tokens
-
-**Response 200:** same shape as register.
-
----
-
-### 3.4 POST `/v1/auth/google`
+### 3.3 POST `/v1/auth/google`
 Google Sign-In.
 
 **Request:**
@@ -162,7 +135,7 @@ Google Sign-In.
 
 ---
 
-### 3.5 POST `/v1/auth/refresh`
+### 3.4 POST `/v1/auth/refresh`
 Token refresh.
 
 **Request:**
@@ -193,7 +166,7 @@ Token refresh.
 
 ---
 
-### 3.6 POST `/v1/auth/logout`
+### 3.5 POST `/v1/auth/logout`
 Revoke refresh token (best-effort).
 
 **Request:**
@@ -209,7 +182,7 @@ Revoke refresh token (best-effort).
 
 ---
 
-### 3.7 POST `/v1/sync/profile`
+### 3.6 POST `/v1/sync/profile`
 Push user profile from device.
 
 **Request:**
@@ -228,7 +201,7 @@ Push user profile from device.
 
 ---
 
-### 3.8 POST `/v1/sync/meals`
+### 3.7 POST `/v1/sync/meals`
 Push a meal entry from device.
 
 **Request:**
@@ -247,7 +220,7 @@ Push a meal entry from device.
 
 ---
 
-### 3.9 GET `/v1/sync/data`
+### 3.8 GET `/v1/sync/data`
 Fetch all user data for device sync.
 
 **Query:** `?server_user_id=<id>`
@@ -337,7 +310,7 @@ Requirements:
 - Create Express server with routes under /v1/auth/* and /v1/sync/*
 - Use MongoDB with Mongoose models: User, RefreshToken, UserData
 - JWT access tokens (HS256, 15min expiry) and refresh tokens (UUID, 7day expiry)
-- OAuth verification for Apple Sign-In and Google Sign-In
+- OAuth verification for Google Sign-In
 - All sync endpoints protected by Bearer token middleware
 - CORS enabled for mobile app clients
 - Return exact JSON response shapes as defined in BACKEND_INTEGRATION.md
@@ -352,7 +325,6 @@ Start by creating the project structure, then models, then auth routes, then syn
 - [ ] `POST /v1/auth/register` creates user and returns tokens
 - [ ] `POST /v1/auth/login` returns tokens for valid credentials
 - [ ] `POST /v1/auth/login` returns 401 for bad password
-- [ ] `POST /v1/auth/apple` verifies Apple JWT and creates/returns user
 - [ ] `POST /v1/auth/google` verifies Google ID token and creates/returns user
 - [ ] `POST /v1/auth/refresh` returns new access token
 - [ ] `POST /v1/auth/refresh` with bad token returns 401
