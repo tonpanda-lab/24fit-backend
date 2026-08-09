@@ -4,6 +4,7 @@ const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const { generateAccessToken, generateRefreshToken } = require('../utils/jwt');
 const { hashPassword, comparePassword } = require('../utils/password');
+const { verifyGoogleIdToken } = require('../services/googleAuth');
 
 const router = express.Router();
 
@@ -99,45 +100,21 @@ router.post('/login', async (req, res) => {
 router.post('/google', async (req, res) => {
   try {
     const { id_token } = req.body;
-    if (!id_token) {
-      return res.status(401).json({ error: 'Missing ID token' });
+
+    if (!id_token || typeof id_token !== 'string') {
+      return res.status(400).json({ error: 'Missing id_token' });
     }
 
-    const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(id_token)}`);
-    if (!googleRes.ok) {
-      return res.status(401).json({ error: 'Invalid Google ID token' });
-    }
-    const payload = await googleRes.json();
+    const googleUser = await verifyGoogleIdToken(id_token);
 
-    if (payload.error) {
-      return res.status(401).json({ error: 'Invalid Google ID token' });
-    }
-
-    // Verify token audience (prevent replay attacks from other apps)
-    const allowedAudiences = [
-      process.env.GOOGLE_CLIENT_ID,
-      process.env.GOOGLE_ANDROID_CLIENT_ID,
-      process.env.GOOGLE_IOS_CLIENT_ID,
-    ].filter(Boolean);
-
-    if (allowedAudiences.length > 0 && !allowedAudiences.includes(payload.aud)) {
-      console.error('Google token aud mismatch:', payload.aud);
-      return res.status(401).json({ error: 'Invalid token audience' });
-    }
-
-    const googleUserId = payload.sub;
-    const email = payload.email;
-    const name = payload.name || null;
-    const picture = payload.picture || null;
-
-    let user = await User.findOne({ authProvider: 'google', providerId: googleUserId });
+    let user = await User.findOne({ authProvider: 'google', providerId: googleUser.providerId });
     if (!user) {
       user = await User.create({
-        email: email.toLowerCase(),
+        email: googleUser.email,
         authProvider: 'google',
-        providerId: googleUserId,
-        displayName: name,
-        photoUrl: picture,
+        providerId: googleUser.providerId,
+        displayName: googleUser.displayName ?? null,
+        photoUrl: googleUser.photoUrl ?? null,
       });
     }
 
@@ -153,6 +130,11 @@ router.post('/google', async (req, res) => {
     });
   } catch (err) {
     console.error('Google auth error:', err);
+
+    if (err instanceof Error && err.message.includes('Invalid Google ID token')) {
+      return res.status(401).json({ error: 'Invalid Google ID token' });
+    }
+
     return res.status(500).json({ error: 'Internal server error' });
   }
 });

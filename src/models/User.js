@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   passwordHash: { type: String },
   authProvider: { type: String, enum: ['email', 'google'], required: true },
-  providerId: { type: String },
+  providerId: { type: String, unique: true, sparse: true },
   displayName: { type: String },
   photoUrl: { type: String },
   createdAt: { type: Date, default: Date.now },
